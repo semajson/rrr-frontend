@@ -31,7 +31,7 @@ function doLogin(event) {
     .then((data) => {
       sessionStorage.setItem("token", data.access_token);
       sessionStorage.setItem("username", username);
-      window.location.replace("/menu.html");
+      window.location.replace("./menu.html");
     })
     .catch((error) => {
       console.error("Error is:", error);

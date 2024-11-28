@@ -29,7 +29,7 @@ function joinGame(event) {
     })
     .then((data) => {
       localStorage.setItem("initialGamestate", JSON.stringify(data));
-      window.location.replace("/game.html");
+      window.location.replace("./game.html");
     })
     .catch((error) => {
       console.error("Error is:", error);
