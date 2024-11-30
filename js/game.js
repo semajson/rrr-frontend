@@ -7,7 +7,8 @@ const create_game_rsp = JSON.parse(localStorage.getItem("initialGamestate"));
 
 const game_id = create_game_rsp.game_id;
 document.getElementById("gameIdDisplay").textContent = "Game ID: " + game_id;
-let user_coord = create_game_rsp.user_coord;
+let user_coord = create_game_rsp.user_info.coord;
+let user_dir = create_game_rsp.user_info.dir;
 let gamestate = create_game_rsp.visible_gamestate;
 
 const canvas = document.getElementById("gameCanvas");
@@ -53,23 +54,41 @@ function loadGameImages() {
     tile_W: new Image(),
 
     // Sprites
-    user: new Image(),
-    other_user: new Image(),
+    user_north: new Image(),
+    user_south: new Image(),
+    user_east: new Image(),
+    user_west: new Image(),
+    other_user_east: new Image(),
+    other_user_north: new Image(),
+    other_user_south: new Image(),
+    other_user_west: new Image(),
   };
 
   gameImages["tile_G"].src = "images/grass.png";
   gameImages["tile_R"].src = "images/rock.png";
   gameImages["tile_W"].src = "images/water.png";
-  gameImages["user"].src = "images/user.png";
-  gameImages["other_user"].src = "images/other_user.png";
+  gameImages["user_north"].src = "images/user_north.png";
+  gameImages["user_south"].src = "images/user_south.png";
+  gameImages["user_east"].src = "images/user_east.png";
+  gameImages["user_west"].src = "images/user_west.png";
+  gameImages["other_user_east"].src = "images/other_user_east.png";
+  gameImages["other_user_south"].src = "images/other_user_south.png";
+  gameImages["other_user_west"].src = "images/other_user_west.png";
+  gameImages["other_user_north"].src = "images/other_user_north.png";
 
   // Return a promise that resolves when all images are loaded
   return Promise.all([
     new Promise((resolve) => (gameImages["tile_G"].onload = resolve)),
     new Promise((resolve) => (gameImages["tile_R"].onload = resolve)),
     new Promise((resolve) => (gameImages["tile_W"].onload = resolve)),
-    new Promise((resolve) => (gameImages["user"].onload = resolve)),
-    new Promise((resolve) => (gameImages["other_user"].onload = resolve)),
+    new Promise((resolve) => (gameImages["user_east"].onload = resolve)),
+    new Promise((resolve) => (gameImages["user_south"].onload = resolve)),
+    new Promise((resolve) => (gameImages["user_west"].onload = resolve)),
+    new Promise((resolve) => (gameImages["user_north"].onload = resolve)),
+    new Promise((resolve) => (gameImages["other_user_north"].onload = resolve)),
+    new Promise((resolve) => (gameImages["other_user_south"].onload = resolve)),
+    new Promise((resolve) => (gameImages["other_user_east"].onload = resolve)),
+    new Promise((resolve) => (gameImages["other_user_west"].onload = resolve)),
   ]).then(() => {
     return gameImages;
   });
@@ -112,16 +131,34 @@ function drawTerrain(board, gameImages) {
 }
 
 function drawUsers(users, topLeftCoord, gameImages) {
-  for (const [user, coord] of Object.entries(users)) {
+  for (const [user, info] of Object.entries(users)) {
     if (user == username) {
       // Our user
       // For current user, use user_coord over gamestate user coord
-      let image = gameImages["user"];
-      drawUser(user_coord, topLeftCoord, image);
+      let image = NaN;
+      if (info.dir == "West") {
+        image = gameImages["user_west"];
+      } else if (info.dir == "East") {
+        image = gameImages["user_east"];
+      } else if (info.dir == "South") {
+        image = gameImages["user_south"];
+      } else if (info.dir == "North") {
+        image = gameImages["user_north"];
+      }
+      drawUser(info.coord, topLeftCoord, image);
     } else {
       // Other user
-      let image = gameImages["other_user"];
-      drawUser(coord, topLeftCoord, image);
+      let image = NaN;
+      if (info.dir == "West") {
+        image = gameImages["other_user_west"];
+      } else if (info.dir == "East") {
+        image = gameImages["other_user_east"];
+      } else if (info.dir == "South") {
+        image = gameImages["other_user_south"];
+      } else if (info.dir == "North") {
+        image = gameImages["other_user_north"];
+      }
+      drawUser(info.coord, topLeftCoord, image);
     }
   }
 }
@@ -191,7 +228,8 @@ async function doUserAction(userAction) {
 
   if (response.ok) {
     const data = await response.json();
-    user_coord = data.user_coord;
+    user_dir = data.user_info.dir;
+    user_coord = data.user_info.coord;
   } else {
     const data = await response.json();
     console.error("Action error: " + JSON.stringify(data));
