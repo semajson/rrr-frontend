@@ -35,6 +35,7 @@ loadGameImages().then((foundGameImages) => {
 
 // Main loop
 window.addEventListener("keydown", handleKeyPress);
+window.addEventListener("keyup", handleKeyRelease);
 async function gameTick() {
   if (action != null) {
     // Todo - decide if should be async or not!
@@ -109,6 +110,22 @@ function handleKeyPress(event) {
     action = { move: "West" };
   } else if (key === "ArrowRight") {
     action = { move: "East" };
+  }
+
+  // For drawing only
+  const key_display = document.getElementById(event.key);
+  if (key_display) {
+    key_display.classList.add("active");
+  }
+}
+
+// Only for display
+function handleKeyRelease(event) {
+  const key = event.key;
+
+  const key_display = document.getElementById(event.key);
+  if (key_display) {
+    key_display.classList.remove("active");
   }
 }
 

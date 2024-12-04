@@ -1,8 +1,11 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    margin-top: 10px;
+    margin: 10px;
+    display: flex; /* Enable flexbox layout */
+
 }
+
 
 .login-form {
     display: flex;
@@ -40,7 +43,28 @@ body {
     margin: 0 auto; /* Center the form horizontally */
 }
 
+.arrow-keys {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    text-align: center;
+}
 
+canvas {
+    border: 1px solid black;
+    margin: 20px;
+    max-width: 450px;
+}
+
+#gameCanvas {
+    flex-grow: 1;
+}
+
+.sidebar {
+    flex-direction: row;
+    width: 300px;
+
+}
 
 .arrow-key {
     display: inline-block;

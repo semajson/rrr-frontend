@@ -8,26 +8,40 @@
     <link rel="stylesheet" href="./css/style.css">
     <style>
         canvas {
-          border: 1px solid black;
+            border: 1px solid black;
         }
     </style>
 </head>
 
 <body>
-    <h3 id="gameIdDisplay"></h3>
+    <div class="sidebar">
+        <h3 id="gameIdDisplay"></h3>
+
+        <!-- <div class="arrow-keys"> -->
+        <div>
+            <div class="arrow-key" id="ArrowUp">↑</div>
+        </div>
+        <div>
+            <div class="arrow-key" id="ArrowLeft">←</div>
+            <div class="arrow-key" id="ArrowDown">↓</div>
+            <div class="arrow-key" id="ArrowRight">→</div>
+        </div>
+        <!-- </div> -->
+
+        <p></p>
+        <label>
+            Client side prediction: <input type="checkbox" id="clientSidePrediction">
+        </label>
+
+        <p></p>
+
+        <label>
+            Extra lag (ms): 0<input type="range" id="lagSlider" min="0" max="200" value="0">200
+        </label>
+    </div>
     <canvas id="gameCanvas" width="1" height="1"></canvas>
     <script src="js/config.js"></script>
     <script src="js/game.js"></script>
 </body>
 
-<p></p>
-<label>
-    Client side prediction: <input type="checkbox" id="clientSidePrediction">
-</label>
-
-<p></p>
-
-<label>
-    Extra lag (ms): 0<input type="range" id="lagSlider" min="0" max="200" value="0""/>200
-</label>
 </html>
