@@ -8,6 +8,7 @@ const create_game_rsp = JSON.parse(localStorage.getItem("initialGamestate"));
 const game_id = create_game_rsp.game_id;
 document.getElementById("gameIdDisplay").textContent = "Game ID: " + game_id;
 let user_coord = create_game_rsp.user_info.coord;
+let user_coord_display = create_game_rsp.user_info.coord;
 let user_dir = create_game_rsp.user_info.dir;
 let gamestate = create_game_rsp.visible_gamestate;
 
@@ -37,7 +38,7 @@ window.addEventListener("keydown", handleKeyPress);
 async function gameTick() {
   if (action != null) {
     // Todo - decide if should be async or not!
-    doUserAction(action);
+    doUserAction(action, gamestate.top_left_coord, gamestate.terrain);
     action = null;
   }
 
@@ -136,16 +137,16 @@ function drawUsers(users, topLeftCoord, gameImages) {
       // Our user
       // For current user, use user_coord over gamestate user coord
       let image = NaN;
-      if (info.dir == "West") {
+      if (user_dir == "West") {
         image = gameImages["user_west"];
-      } else if (info.dir == "East") {
+      } else if (user_dir == "East") {
         image = gameImages["user_east"];
-      } else if (info.dir == "South") {
+      } else if (user_dir == "South") {
         image = gameImages["user_south"];
-      } else if (info.dir == "North") {
+      } else if (user_dir == "North") {
         image = gameImages["user_north"];
       }
-      drawUser(info.coord, topLeftCoord, image);
+      drawUser(user_coord_display, topLeftCoord, image);
     } else {
       // Other user
       let image = NaN;
@@ -204,9 +205,46 @@ async function getGamestate() {
   }
 }
 
-async function doUserAction(userAction) {
+async function doUserAction(userAction, topLeftCoord, board) {
   const token = sessionStorage.getItem("token");
 
+  // Client side prediction
+  const clientSidePrediction = document.getElementById("clientSidePrediction");
+  if (clientSidePrediction.checked) {
+    console.log("client");
+    if (action.move != user_dir) {
+      user_dir = action.move;
+    } else {
+      const x = user_coord_display.x - topLeftCoord.x;
+      const y = user_coord_display.y - topLeftCoord.y;
+
+      switch (action.move) {
+        case "West":
+          if (board[y][x - 1] == "G") {
+            user_coord_display.x -= 1;
+          }
+          break;
+        case "East":
+          if (board[y][x + 1] == "G") {
+            user_coord_display.x += 1;
+          }
+          break;
+        case "North":
+          if (board[y - 1][x] == "G") {
+            user_coord_display.y -= 1;
+          }
+          break;
+        case "South":
+          if (board[y + 1][x] == "G") {
+            user_coord_display.y += 1;
+          }
+          break;
+      }
+      console.log("user_coord_display is ", user_coord_display);
+    }
+  }
+
+  await sleep(100);
   const response = await fetch(
     backend_url +
       "/rrr-game/" +
@@ -229,9 +267,13 @@ async function doUserAction(userAction) {
   if (response.ok) {
     const data = await response.json();
     user_dir = data.user_info.dir;
+    user_coord_display = structuredClone(data.user_info.coord);
     user_coord = data.user_info.coord;
   } else {
     const data = await response.json();
     console.error("Action error: " + JSON.stringify(data));
   }
+}
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
