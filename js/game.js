@@ -30,7 +30,7 @@ loadGameImages().then((foundGameImages) => {
   drawUsers(gamestate.users, gamestate.top_left_coord, gameImages);
 
   // Setup regular game tick
-  setInterval(gameTick, 100);
+  setInterval(gameTick, 200);
 });
 
 // Main loop
@@ -98,9 +98,6 @@ function loadGameImages() {
 // Handle key press
 // This works by setting the global variable action,
 // to be processed in gameTick().
-// This assumes that the gameTick() interval is sufficient
-// Might want to change this for client side prediction / better user response
-// and have stuff handled all in handleKeyPress()
 function handleKeyPress(event) {
   const key = event.key;
 
@@ -135,7 +132,8 @@ function drawUsers(users, topLeftCoord, gameImages) {
   for (const [user, info] of Object.entries(users)) {
     if (user == username) {
       // Our user
-      // For current user, use user_coord over gamestate user coord
+      // For current user, use in memory variables rather
+      // than getting from gamestate.
       let image = NaN;
       if (user_dir == "West") {
         image = gameImages["user_west"];
@@ -176,6 +174,10 @@ async function getGamestate() {
 
   // console.log("User coord is :" + user_coord.x + ", " + user_coord.y);
 
+  // Extra delay
+  const slider = document.getElementById("lagSlider");
+  await sleep(slider.value);
+
   const response = await fetch(
     backend_url +
       "/rrr-game/" +
@@ -195,7 +197,6 @@ async function getGamestate() {
   );
 
   if (response.ok) {
-    // console.log("Response is: " + response);
     const data = await response.json();
     return data;
   } else {
@@ -244,7 +245,10 @@ async function doUserAction(userAction, topLeftCoord, board) {
     }
   }
 
-  await sleep(100);
+  // Extra delay
+  const slider = document.getElementById("lagSlider");
+  await sleep(slider.value);
+
   const response = await fetch(
     backend_url +
       "/rrr-game/" +
